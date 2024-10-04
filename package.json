@@ -1,0 +1,11 @@
+{
+  "name": "ainb",
+  "version": "1.0.0",
+  "description": "Read/write AINB files",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "author": "UraYukimitsu",
+  "license": "BSD-3-Clause"
+}

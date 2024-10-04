@@ -1,0 +1,2 @@
+u32 name_off_and_flag
+u32 string_off

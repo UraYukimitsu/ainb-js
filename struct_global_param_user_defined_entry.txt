@@ -1,0 +1,4 @@
+u32 name_off
+u32 name_hash
+u32 unk1
+u32 unk2

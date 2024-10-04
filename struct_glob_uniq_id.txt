@@ -1,0 +1,5 @@
+u32 glob_uniq_id1
+u16 glob_uniq_id2
+u16 glob_uniq_id3
+u16 glob_uniq_id4
+u8[6] glob_uniq_id5
