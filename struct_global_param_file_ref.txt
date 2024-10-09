@@ -1,0 +1,4 @@
+u32 name_off
+u32 name_hash
+u32 filename_hash
+u32 extension_hash

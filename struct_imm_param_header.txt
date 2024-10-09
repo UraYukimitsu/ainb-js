@@ -1,0 +1,6 @@
+u32 u32_off
+u32 bool_off
+u32 float_off
+u32 string_off
+u32 vec3f_off
+u32 userdefined_off

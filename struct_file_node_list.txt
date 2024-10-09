@@ -16,4 +16,4 @@ u16 base_precondition_node
 u16 precondition_node_count
 u16 section_entry_addr
 u16 unk4
-struct glob_uniq_id guid
+glob_uniq_id guid

@@ -1,0 +1,3 @@
+u32 name_off
+u16 index
+u16 flags
