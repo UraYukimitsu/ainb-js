@@ -14,6 +14,7 @@ const primitiveTypes = {
     char:   { sizeof: 1, read: (data, position) => String.fromCharCode(data.getUint8(position)) },
     bool:   { sizeof: 4, read: (data, position, isLittleEndian) => Boolean(data.getUint32(position, isLittleEndian)) },
     string: { sizeof: undefined, read: (data, position) => {
+        console.log(position);
         let ret = new Array
         for (let i = position; data.getUint8(i) != 0; i++) {
             ret.push(String.fromCharCode(data.getUint8(i)));
@@ -22,8 +23,17 @@ const primitiveTypes = {
     }}
 }
 
+/**
+ * Represents a binary data structure and provides methods for defining and reading binary data.
+ */
 class Struct {
     static #loadedStructs = new Object;
+    
+    /**
+     * Retrieves all registered structs and primitive types.
+     * @type {Object.<string, {sizeof: number, read: function}>}
+     * @readonly
+     */
     static get loadedStructs() { return Struct.#loadedStructs; }
     static {
         for (let i in primitiveTypes)
@@ -31,12 +41,35 @@ class Struct {
     }
 
     #sizeof = 0;
+    /**
+     * The total size (in bytes) of the struct.
+     * @type {number}
+     * @readonly
+     */
     get sizeof() { return this.#sizeof; }
+
     #props = new Array;
+    /**
+     * The list of properties (members) in the struct.
+     * @type {Array.<{type: string, name: string, arrayLength: number}>}
+     * @readonly
+     */
     get props() { return this.#props; }
+
     #name;
+    /**
+     * The name of the struct.
+     * @type {string}
+     * @readonly
+     */
     get name() { return this.#name; }
 
+    /**
+     * Creates and registers a new struct type.
+     * @param {string} structInfo - A string defining the struct's members (e.g., "u16 id\nu8 age").
+     * @param {string} structName - The unique name of the struct.
+     * @throws {Error} If the struct name conflicts with a primitive type or an existing struct.
+     */
     constructor(structInfo, structName) {
         structInfo = structInfo.replaceAll('\r', '');
         if (typeof primitiveTypes[structName]  !== 'undefined')
@@ -73,11 +106,28 @@ class Struct {
         Struct.#loadedStructs[structName] = this;
     }
 
-    // Shorthand for readStruct
+    /**
+     * Reads an instance of the struct from a DataView.
+     * @param {DataView} data - The DataView containing the binary data.
+     * @param {number} position - The offset at which to start reading.
+     * @param {boolean} [isLittleEndian=false] - Whether to use little-endian byte order.
+     * @returns {Object} An object representing the struct's fields and values.
+     * @throws {TypeError} If `data` is not a DataView.
+     */
     read(data, position, isLittleEndian = false) {
         return Struct.readStruct(data, position, this.name, isLittleEndian);
     }
 
+    /**
+     * Reads an instance of a registered struct type from a DataView.
+     * @param {DataView} data - The DataView containing the binary data.
+     * @param {number} position - The offset at which to start reading.
+     * @param {string} structName - The name of the struct to read.
+     * @param {boolean} [isLittleEndian=false] - Whether to use little-endian byte order.
+     * @returns {Object} An object representing the struct's fields and values.
+     * @throws {Error} If the struct name is not registered.
+     * @throws {TypeError} If `data` is not a DataView.
+     */
     static readStruct(data, position, structName, isLittleEndian = false) {
         if (!DataView.prototype.isPrototypeOf(data))
             throw new TypeError('Parameter data is not of type DataView.');
@@ -108,6 +158,16 @@ class Struct {
         return ret;
     }
 
+    /**
+     * Reads a value of a registered type (primitive or struct) from a DataView.
+     * @param {DataView} data - The DataView containing the binary data.
+     * @param {number} position - The offset at which to start reading.
+     * @param {string} type - The name of the type or struct to read.
+     * @param {boolean} [isLittleEndian=false] - Whether to use little-endian byte order.
+     * @returns {{count: number, value: *}} An object containing the size of the value and the parsed value.
+     * @throws {Error} If the type is not registered.
+     * @throws {TypeError} If `data` is not a DataView.
+     */
     static readValue(data, position, type, isLittleEndian = false) {
         if (!DataView.prototype.isPrototypeOf(data))
             throw new TypeError('Parameter data is not of type DataView.');
