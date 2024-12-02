@@ -1,2 +1,5 @@
 *.ainb
 test.json
+test.js
+node_modules/
+classes_generated/*.js

@@ -1,0 +1,2 @@
+Bitfield32{flag: 10, name_off: 22} name_off_and_flag
+u32 string_off

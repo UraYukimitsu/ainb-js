@@ -2,4 +2,3 @@ u32 name_off
 u32 sub_param_entry_off
 u16 exb_func_count
 u16 exb_io_field_size
-u32 name_hash

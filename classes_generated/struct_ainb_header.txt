@@ -18,12 +18,12 @@ u32 attach_param_index_list_off
 u32 exb_section_off
 u32 child_replacement_table_off
 u32 precondition_node_array_off
-u32 unk1
-u32 unk2
-u32 unk3
+u32 #unk1
+u32 #unk2
+u32 #unk3
 u32 embedded_ainb_off
 u32 file_category_name_off
 u32 file_category
 u32 entry_str_off
-u32 unk4
+u32 #unk4
 u32 file_ident_hash_off

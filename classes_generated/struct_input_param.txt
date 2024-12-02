@@ -1,0 +1,4 @@
+u32 name_off
+s16 input_child_index
+s16 io_source_index
+u32 flags
