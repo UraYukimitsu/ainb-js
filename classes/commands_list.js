@@ -9,7 +9,7 @@ class commands_list {
      */
     name;
     /**
-     * @type {global_uniq_id}
+     * @type {glob_uniq_id}
      */
     guid;
     /**
@@ -25,13 +25,12 @@ class commands_list {
      * @param {DataView} data - The DataView containing the binary data.
      * @param {number} position - The position in the DataView where the bitfield starts.
      * @param {boolean} isLittleEndian - Indicates if the data is in little-endian format.
-     * @param {object} options - Additional parameters to pass to the read method.
-     * @param {DataViewStream} options.str_pool - The DataViewStream pointing to the string pool of the AINB file.
+     * @param {DataViewStream} str_pool - The DataViewStream pointing to the string pool of the AINB file.
      * @returns {commands_list} - The resulting commands list item.
      */
-    static read(data, position, isLittleEndian, options) {
+    static read(data, position, isLittleEndian, {str_pool}) {
         let fromObj = new Object;
-        fromObj['name'] = options.str_pool.readAt(Struct.readValue(data, position + 0, 'u32', isLittleEndian, undefined).value, 'string');
+        fromObj['name'] = str_pool.readAt(Struct.readValue(data, position + 0, 'u32', isLittleEndian, undefined).value, 'string');
         fromObj['guid'] = Struct.readValue(data, position + 4, 'glob_uniq_id', isLittleEndian, undefined).value;
         fromObj['left_node_index'] = Struct.readValue(data, position + 20, 'u16', isLittleEndian, undefined).value;
         fromObj['right_node_index'] = Struct.readValue(data, position + 22, 'u16', isLittleEndian, undefined).value;

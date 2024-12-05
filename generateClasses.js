@@ -13,9 +13,12 @@ new Struct(fs.readFileSync('./classes_generated/struct_imm_param_header.txt', 'u
 new Struct(fs.readFileSync('./classes_generated/struct_imm_param.txt', 'utf8'), 'imm_param');
 new Struct(fs.readFileSync('./classes_generated/struct_imm_param_userdefined.txt', 'utf8'), 'imm_param_userdefined');
 new Struct(fs.readFileSync('./classes_generated/struct_attach_param_entry.txt', 'utf8'), 'attach_param_entry');
+new Struct(fs.readFileSync('./classes_generated/struct_attach_param_entry_0407.txt', 'utf8'), 'attach_param_entry_0407');
 new Struct(fs.readFileSync('./classes_generated/struct_attach_sub_param.txt', 'utf8'), 'attach_sub_param');
 new Struct(fs.readFileSync('./classes_generated/struct_input_param.txt', 'utf8'), 'input_param');
 new Struct(fs.readFileSync('./classes_generated/struct_input_param_userdefined.txt', 'utf8'), 'input_param_userdefined');
+new Struct(fs.readFileSync('./classes_generated/struct_output_param.txt', 'utf8'), 'output_param');
+new Struct(fs.readFileSync('./classes_generated/struct_output_param_userdefined.txt', 'utf8'), 'output_param_userdefined');
 new Struct(fs.readFileSync('./classes_generated/struct_multi_param.txt', 'utf8'), 'multi_param');
 
 for (let structName in Struct.loadedStructs) {

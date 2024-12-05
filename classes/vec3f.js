@@ -9,17 +9,20 @@ class vec3f {
     z;
 
     static read(data, position, isLittleEndian) {
-        let x = Struct.readValue(data, position + 0, 'float', isLittleEndian).value;
-        let y = Struct.readValue(data, position + 4, 'float', isLittleEndian).value;
-        let z = Struct.readValue(data, position + 8, 'float', isLittleEndian).value;
+        let fromObj = new Object;
+        fromObj['x'] = Struct.readValue(data, position + 0, 'float', isLittleEndian, undefined).value;
+        fromObj['y'] = Struct.readValue(data, position + 4, 'float', isLittleEndian, undefined).value;
+        fromObj['z'] = Struct.readValue(data, position + 8, 'float', isLittleEndian, undefined).value;
 
-        return new vec3f(x, y, z);
+        return new vec3f({fromObj});
     }
 
-    constructor(x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    constructor(options) {
+        if (typeof options.fromObj === 'object') {
+            this.x = options.fromObj['x'];
+            this.y = options.fromObj['y'];
+            this.z = options.fromObj['z'];
+        }
     }
 
     static {

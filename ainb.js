@@ -17,6 +17,8 @@ const attach_param_entry = require('./classes/attach_param_entry.js');
 const attach_sub_param = require('./classes/attach_sub_param.js');
 const input_param = require('./classes/input_param.js');
 const input_param_userdefined = require('./classes/input_param_userdefined.js');
+const output_param = require('./classes/output_param.js');
+const output_param_userdefined = require('./classes/output_param_userdefined.js');
 const multi_param = require('./classes/multi_param.js');
 
 class AINB {
@@ -131,17 +133,12 @@ class AINB {
         for (let t in this.global_header) {
             let params = new Array;
             for (let i  = 0; i < this.global_header[t].entry_count; i++) {
-                let entry = new Object;
-                let entryStruct = data.readNext('global_param_entry', true);
-                let bitfield = entryStruct.name_off_and_flag;
-                let name_off = bitfield & 0x3FFFFF;
-                entry.name = str_pool.readAt(name_off, 'string');
-                entry.notes = str_pool.readAt(entryStruct.string_off, 'string');
-                let validIndex = Boolean(bitfield >> 31);
-                if (validIndex) {
-                    entry.index = (bitfield >> 24) & 0x7F;
-                    if (entry.index > this.#max_global_index)
-                        this.#max_global_index = entry.index;
+                let entry = data.readNext('global_param_entry', true, {str_pool: this.#str_pool});
+                if (entry.flag.validIndex) {
+                    if (entry.flag.index > this.#max_global_index)
+                        this.#max_global_index = entry.flag.index;
+                } else {
+                    delete entry.flag.index;
                 }
                 params.push(entry);
             }
@@ -158,9 +155,7 @@ class AINB {
 
         this.global_refs = new Array;
         for (let i = 0; i <= this.#max_global_index; i++) {
-            let entry = data.readNext('global_param_file_ref', true);
-            entry.filename = str_pool.readAt(entry.name_off, 'string');
-            delete entry.name_off;
+            this.global_refs.push(data.readNext('global_param_file_ref', true, {str_pool: this.#str_pool}));
         }
 
         for (let t in this.global_params) {
@@ -223,14 +218,10 @@ class AINB {
         if (this.header.attach_param_count > 0) {
             data.seek(this.header.attach_param_off); 
             do {
-                let entry;
                 if (this.header.version == 0x0404)
-                    entry = data.readNext('attach_param_entry', true);
+                    this.attach_param.push(data.readNext('attach_param_entry', true, {str_pool: this.#str_pool}));
                 else
-                    entry = data.readNext('attach_param_entry_0407', true);
-                entry.name = str_pool.readAt(entry.name_off, 'string');
-                delete entry.name_off;
-                this.attach_param.push(entry);
+                    this.attach_param.push(ata.readNext('attach_param_entry_0407', true, {str_pool: this.#str_pool}));
             } while (data.tell() < this.attach_param[0].sub_param_entry_off);
             for (let param of this.attach_param) {
                 data.seek(param.sub_param_entry_off);
@@ -296,26 +287,12 @@ class AINB {
     #readInputParam(type) {
         let ret;
         if (type === 'userdefined') {
-            ret = this.#data.readNext('input_param_userdefined', true);
-            ret.class_name = this.#str_pool.readAt(ret.class_name_off, 'string');
-            delete ret.class_name_off;
+            ret = this.#data.readNext('input_param_userdefined', true, {str_pool: this.#str_pool});
         } else {
             ret = this.#data.readNext('input_param', true, {str_pool: this.#str_pool, type});
-            if (type === 'string') {
-                let str_off = this.#data.readNext('u32', true);
-                ret.default_value = this.#str_pool.readAt(str_off, 'string');
-            } else {
-                ret.default_value = this.#data.readNext(type, true);
-            }
         }
 
-        if (ret.input_child_index <= -100 && ret.input_child_index >= -8192) {
-            ret.multi_index = -100 - ret.input_child_index;
-            ret.multi_count = ret.io_source_index;
-        }
-
-        let flags = ret.flags;
-        ret.flags = this.#getParamFlags(flags);
+        ret.flags = this.#getParamFlags(ret.flags);
         if (Object.keys(ret.flags).length == 0)
             delete ret.flags;
 
@@ -323,15 +300,12 @@ class AINB {
     }
 
     #readOutputParam(type) {
-        let ret = new Object;
-        let flags = this.#data.readNext('u32', true);
-        ret.name = this.#str_pool.readAt(flags & 0x3FFFFFFF, 'string');
-        if (flags &= 0x80000000)
-            ret.isOutput = true;
+        let ret;
         
         if (type == 'userdefined') {
-            let class_name_off = this.#data.readNext('u32', true);
-            ret.class_name = this.#str_pool.readAt(class_name_off, 'string');
+            ret = this.#data.readNext('output_param_userdefined', true, {str_pool: this.#str_pool});
+        } else {
+            ret = this.#data.readNext('output_param', true, {str_pool: this.#str_pool});
         }
 
         return ret;
@@ -457,7 +431,7 @@ class AINB {
     }
 
     #readNode() {
-        let ret = this.#data.readNext('file_node_list', true);
+        let ret = this.#data.readNext('file_node_list', true, {str_pool: this.#str_pool});
 
         return ret;
     }

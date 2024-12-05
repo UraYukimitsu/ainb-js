@@ -1,0 +1,2 @@
+Bitfield32{IsOutput: 1, #unk1: 1, name_off: 30} flags_and_name_off
+u32 class_name_off

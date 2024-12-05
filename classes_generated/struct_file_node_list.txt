@@ -1,7 +1,7 @@
 u16 node_type
 u16 node_id
 u16 attach_param_count
-u8 node_flags
+Bitfield8{#padding: 5, isResidentNode: 1, isModule: 1, isPreconditionNode: 1} node_flags
 u8 #unk1
 u32 name_off
 u32 #unk2
