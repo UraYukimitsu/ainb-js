@@ -433,6 +433,68 @@ class AINB {
     #readNode() {
         let ret = this.#data.readNext('file_node_list', true, {str_pool: this.#str_pool});
 
+        if (ret.precondition_node_count > 0) {
+            ret.precondition_nodes = new Array;
+            for (let i = 0; i < ret.precondition_node_count; i++) {
+                ret.precondition_nodes.push(this.precondition_nodes[ret.base_precondition_node + i]);
+            }
+        }
+        delete ret.precondition_node_count;
+        delete ret.base_precondition_node;
+        delete ret.attach_param_count;
+        delete ret.base_attach_param_index;
+        
+        let jumpback = this.#data.tell();
+
+        this.#data.seek(ret.node_body_off);
+        let imm_params = new Object;
+        for (let type of standardTypes) {
+            let index = this.#data.readNext('u32', true);
+            let count = this.#data.readNext('u32', true);
+            imm_params[type] = new Array;
+
+            for (let i = 0; i < count; i++) {
+                imm_params[type].push(this.imm_params[type][index + i])
+            }
+
+            if (imm_params[type].length == 0)
+                delete imm_params[type];
+        }
+        if (Object.keys(imm_params).length > 0)
+            ret.imm_params = imm_params;
+
+        let input_params = new Object;
+        let output_params = new Object;
+        for (let type of standardTypes) {
+            let index = this.#data.readNext('u32', true);
+            let count = this.#data.readNext('u32', true);
+            input_params[type] = new Array;
+
+            for (let i = 0; i < count; i++) {
+                input_params[type].push(this.input_params[type][index + i])
+            }
+
+            if (input_params[type].length == 0)
+                delete input_params[type];
+
+            index = this.#data.readNext('u32', true);
+            count = this.#data.readNext('u32', true);
+            output_params[type] = new Array;
+
+            for (let i = 0; i < count; i++) {
+                output_params[type].push(this.output_params[type][index + i])
+            }
+
+            if (output_params[type].length == 0)
+                delete output_params[type];
+        }
+        if (Object.keys(input_params).length > 0)
+            ret.input_params = input_params;
+        if (Object.keys(output_params).length > 0)
+            ret.output_params = output_params;
+
+        this.#data.seek(jumpback);
+
         return ret;
     }
 }
